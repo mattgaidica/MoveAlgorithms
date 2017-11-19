@@ -1,4 +1,4 @@
-function videoFreqAnalysis(videoFile,resizeFactor,ROItimestamp)
+function [allFrames,pos] = videoFreqAnalysis(videoFile,resizeFactor,ROItimestamp,freqList)
 
 dodebug = false; % shows frames being analyzed
 
@@ -42,8 +42,6 @@ if dodebug
     close(h);
 end
 
-Fs = round(v.FrameRate);
-
 % format as numSamples x numTrials (where samples = frames, trials = vectorized images)
 data = squeeze(reshape(allFrames,[size(allFrames,1) 1 size(allFrames,2)*size(allFrames,3)]));
 % the idea here is to only analyze pixels that move a lot and ignore
@@ -51,29 +49,28 @@ data = squeeze(reshape(allFrames,[size(allFrames,1) 1 size(allFrames,2)*size(all
 dataStd = std(data);
 dataAdj = data(:,dataStd > prctile(dataStd,80));
 
-fpass = [0 10]; % use this to bandpass the video (remove high or low freqs)
-[W,freqList,t] = calculateComplexScalograms(dataAdj,'Fs',Fs,'fpass',fpass,'doplot',false);
-realW = squeeze(mean(abs(W).^2, 2))';
+Fs = round(v.FrameRate); % frame rate is sampling frequency
+[W,freqList,t] = calculateComplexScalograms(dataAdj,'Fs',Fs,'freqList',freqList,'doplot',false);
+realW = squeeze(mean(abs(W).^2,2))';
 
 figure;
 subplot(211);
 imagesc(t,freqList,realW);
-set(gca, 'YDir', 'normal');
+set(gca,'YDir','normal');
 xlim([t(1)+0.5 t(end)-0.5]);
 colormap(jet);
 xlabel('Time (s)');
 ylabel('Freq (Hz)');
-title(subject);
-caxis([0 200]);
+title('Frequency Domain Analysis');
+% caxis([0 200]);
 colorbar;
 set(gca,'fontSize',16);
 
 subplot(212);
 plot(freqList,mean(realW,2));
-xlim(fpass);
+xlim([min(freqList) max(freqList)]);
 xlabel('Freq (Hz)');
 ylabel('Amplitude (arb. units)');
-ylim([0 150]);
 set(gca,'fontSize',16);
 
 set(gcf,'color','white');
