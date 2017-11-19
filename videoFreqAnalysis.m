@@ -1,4 +1,29 @@
 function [allFrames,pos] = videoFreqAnalysis(videoFile,resizeFactor,ROItimestamp,freqList)
+% Converts changes in pixel values to frequency domain
+%
+%
+% Inputs:
+%    videoFile - path to [MATLAB compatible format] video
+%    resizeFactor - resizes the video frames to hasten analysis
+%    ROItimestamp - timestamp used to draw ROI
+%    freqList - frequencies to use in analysis
+%
+% Outputs:
+%    allFrames - all frames (grayscale) used in analysis (cropped by ROI)
+%    pos - ROI rectangle position
+%
+% Example: 
+%       see: test_videoFreqAnalysis.m
+%
+% Other m-files required: none
+% Subfunctions: none
+
+% Author: Matt Gaidica, PhD Candidate
+% University of Michigan
+% email address: matt@gaidi.ca
+% Website: http://gaidi.ca
+
+%------------- BEGIN CODE --------------
 
 dodebug = false; % shows frames being analyzed
 
