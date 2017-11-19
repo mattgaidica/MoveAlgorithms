@@ -1,0 +1,1 @@
+function videoFreqAnalysis(videoFile,resizeFactor)
