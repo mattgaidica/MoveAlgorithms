@@ -1,7 +1,5 @@
 function videoFreqAnalysis(videoFile,resizeFactor,ROItimestamp)
 
-dodebug = false; % shows frames being analyzed
-
 v = VideoReader(videoFile);
 % get frame to set ROI
 v.CurrentTime = ROItimestamp;
@@ -14,16 +12,14 @@ v = VideoReader(videoFile);
 frame = imresize(frame,resizeFactor);
 h = figure;
 imshow(frame);
-hrect = imrect;
-pos = getPosition(hrect);
+h = imrect;
+pos = getPosition(h);
 close(h);
 
 % build a matrix with all video frames
 allFrames = [];
 ii = 1;
-if dodebug
-    h = figure;
-end
+h = figure;
 hw = waitbar(0,'Analyzing video...');
 while hasFrame(v)
     waitbar(v.CurrentTime/v.Duration);
@@ -31,49 +27,20 @@ while hasFrame(v)
     frame = imresize(frame,resizeFactor);
     frame = imcrop(frame,pos);
     frameGray = imadjust(rgb2gray(frame),[0.1 0.8]);
-    if dodebug
-        imshow(frameGray);
-    end
+    imshow(frameGray);
     allFrames(ii,:,:) = frameGray;
     ii = ii + 1;
 end
 close(hw);
-if dodebug
-    close(h);
-end
+close(h);
 
 Fs = round(v.FrameRate);
 
 % format as numSamples x numTrials (where samples = frames, trials = vectorized images)
 data = squeeze(reshape(allFrames,[size(allFrames,1) 1 size(allFrames,2)*size(allFrames,3)]));
 % the idea here is to only analyze pixels that move a lot and ignore
-% stationary ones; may not be needed if the ROI contains a lot of movement
+% stationary ones, but with selecting ROI, this might only be useful to
+% reduce processing load and not entirely helpful as it ignores small
+% movements that might be important
 dataStd = std(data);
 dataAdj = data(:,dataStd > prctile(dataStd,80));
-
-fpass = [0 10]; % use this to bandpass the video (remove high or low freqs)
-[W,freqList,t] = calculateComplexScalograms(dataAdj,'Fs',Fs,'fpass',fpass,'doplot',false);
-realW = squeeze(mean(abs(W).^2, 2))';
-
-figure;
-subplot(211);
-imagesc(t,freqList,realW);
-set(gca, 'YDir', 'normal');
-xlim([t(1)+0.5 t(end)-0.5]);
-colormap(jet);
-xlabel('Time (s)');
-ylabel('Freq (Hz)');
-title(subject);
-caxis([0 200]);
-colorbar;
-set(gca,'fontSize',16);
-
-subplot(212);
-plot(freqList,mean(realW,2));
-xlim(fpass);
-xlabel('Freq (Hz)');
-ylabel('Amplitude (arb. units)');
-ylim([0 150]);
-set(gca,'fontSize',16);
-
-set(gcf,'color','white');

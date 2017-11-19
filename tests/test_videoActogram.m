@@ -24,3 +24,5 @@ xlabel('time (s)');
 ylabel('\Delta pixels (arb. units)');
 set(gcf,'color','w');
 set(gca,'fontSize',16);
+
+% also see: vout = overlayActogram(videoFile,frameData);
