@@ -14,9 +14,7 @@ function frameData = videoActogram(videoFile,frameInterval,resizePx)
 %       n(3) = mean change in pixel values from previous frame
 %
 % Example: 
-%    Line 1 of example
-%    Line 2 of example
-%    Line 3 of example
+%       see: tests/test_videoActogram.m
 %
 % Other m-files required: none
 % Subfunctions: none
